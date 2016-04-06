@@ -51,7 +51,7 @@ public class HandRankingServiceImpl implements HandRankingService {
         // Have we calculated a ranking
         int numCards = pocketCards.size() + communityCards.size();
         if (cachedRanking.containsKey(numCards)) {
-            cachedRanking.get(numCards);
+            return cachedRanking.get(numCards);
         }
 
         availableCards.removeAll(communityCards);

@@ -9,7 +9,6 @@
     </parent>
 
 
-    <groupId>se.cygni</groupId>
     <artifactId>texas-holdem-perforator-client</artifactId>
     <packaging>jar</packaging>
     <name>texas-holdem-perforator-client</name>
@@ -126,7 +125,7 @@
 
     <repositories>
         <repository>
-            <id>poker.cygni.s</id>
+            <id>poker.cygni.se</id>
             <url>http://poker.cygni.se/maven2</url>
         </repository>
     </repositories>
