@@ -13,8 +13,7 @@ import static org.springframework.util.Assert.state;
 public class HandRankingServiceImpl implements HandRankingService {
 
     private Set<Card> availableCards;
-    private final Random random = new Random(System.currentTimeMillis());
-    private Map<Integer, HandRanking> cachedRanking;
+    private final Map<Integer, HandRanking> cachedRanking;
 
     public HandRankingServiceImpl() {
         this.availableCards = getShuffledDeckOfCards();
@@ -42,13 +41,13 @@ public class HandRankingServiceImpl implements HandRankingService {
     }
 
     @Override
-    public HandRanking getRanking(List<Card> pocketCards, List<Card> communityCards, int samples) {
+    public HandRanking getRanking(List<Card> pocketCards, List<Card> communityCards) {
         notNull(pocketCards, "'pocketCards' cannot be null");
         notNull(communityCards, "'communityCards' cannot be null");
-        state(pocketCards.size() == 2, "should always contain two hole cards");
+        state(pocketCards.size() == 2, "should always contain two pocket cards");
         state(communityCards.size() > 2 && communityCards.size() < 6, "should always be between 2 and 5 cards");
 
-        // Have we calculated a ranking
+        // Have we calculated a ranking?
         int numCards = pocketCards.size() + communityCards.size();
         if (cachedRanking.containsKey(numCards)) {
             return cachedRanking.get(numCards);
@@ -58,14 +57,16 @@ public class HandRankingServiceImpl implements HandRankingService {
         availableCards.removeAll(pocketCards);
 
         // create a bunch of permutations of pocket cards from the available ones.
-        Card[] available = availableCards.toArray(new Card[availableCards.size()]);
-        int size = availableCards.size() - 1;
+        Card[] available = availableCards.toArray(new Card[0]);
+
         List<Hand> hands = new LinkedList<>();
-        for (int i = 0; i < samples; i++) {
-            List<Card> holeCardPerm = asList(
-                    available[random.nextInt(size)],
-                    available[random.nextInt(size)]);
-            hands.add(new Hand(new PokerHandUtils(communityCards, holeCardPerm).getBestHand()));
+        // Brute force of all other permutations of pocket cards.
+        for (int c1Idx = 0; c1Idx < available.length; c1Idx++) {
+            Card card1 = available[c1Idx];
+            for (int c2Idx = c1Idx + 1; c2Idx < available.length; c2Idx++) {
+                Card card2 = available[c2Idx];
+                hands.add(new Hand(new PokerHandUtils(communityCards, asList(card1, card2)).getBestHand()));
+            }
         }
 
         Hand myHand = new Hand(new PokerHandUtils(communityCards, pocketCards).getBestHand());

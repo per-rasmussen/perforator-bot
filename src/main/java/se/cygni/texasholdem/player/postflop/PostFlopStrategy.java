@@ -8,4 +8,8 @@ import java.util.List;
 
 public interface PostFlopStrategy {
     Action getPostFlopAction(List<Action> possibleActions, HandRanking ranking, CurrentPlayState playState, GameStatistics gameStatistics);
+
+    void incrementRaises();
+
+    void resetRaises();
 }

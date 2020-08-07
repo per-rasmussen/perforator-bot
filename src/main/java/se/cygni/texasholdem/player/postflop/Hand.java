@@ -1,6 +1,7 @@
 package se.cygni.texasholdem.player.postflop;
 
 import se.cygni.texasholdem.game.Card;
+import se.cygni.texasholdem.game.definitions.PokerHand;
 
 import java.util.HashSet;
 import java.util.List;
@@ -51,6 +52,10 @@ public class Hand implements Comparable<Hand> {
         rankingSet.retainAll(hand.getCards().subList(0, hand.getPokerHand().getCardsRequired()));
 
         return rankingSet.size();
+    }
+
+    public PokerHand getPokerHand() {
+        return hand.getPokerHand();
     }
 
     @Override

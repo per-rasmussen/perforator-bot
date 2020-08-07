@@ -3,13 +3,9 @@ package se.cygni.texasholdem.player;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import se.cygni.texasholdem.client.CurrentPlayState;
-import se.cygni.texasholdem.client.PlayerClient;
 import se.cygni.texasholdem.communication.message.event.*;
 import se.cygni.texasholdem.communication.message.request.ActionRequest;
-import se.cygni.texasholdem.game.Action;
-import se.cygni.texasholdem.game.Card;
-import se.cygni.texasholdem.game.PlayerShowDown;
-import se.cygni.texasholdem.game.Room;
+import se.cygni.texasholdem.game.*;
 import se.cygni.texasholdem.player.postflop.*;
 import se.cygni.texasholdem.player.preflop.PreFlopStrategy;
 import se.cygni.texasholdem.player.preflop.PreFlopStrategyImpl;
@@ -17,7 +13,9 @@ import se.cygni.texasholdem.player.stats.GameStatistics;
 
 import java.util.Formatter;
 
+import static java.lang.System.getProperty;
 import static java.util.EnumSet.of;
+import static se.cygni.texasholdem.game.ActionType.RAISE;
 import static se.cygni.texasholdem.game.definitions.PlayState.*;
 
 /**
@@ -27,10 +25,9 @@ public class PerforatorBot implements Player {
 
     private final static Logger LOG = LoggerFactory.getLogger(PerforatorBot.class);
 
-    private final String serverHost;
-    private final PlayerClient playerClient;
+    private final LocalPlayerClient playerClient;
     private PreFlopStrategy preFlopStrategy;
-    private PostFlopStrategy postFlopStrategy;
+    private final PostFlopStrategy postFlopStrategy;
     private final HandRankingService handRankingService;
     private GameStatistics gameStatistics;
 
@@ -41,16 +38,16 @@ public class PerforatorBot implements Player {
      * @param serverPort port at which the poker server listens
      */
     public PerforatorBot(String serverHost, int serverPort) {
-        this.serverHost = serverHost;
-
-        playerClient = new PlayerClient(this, serverHost, serverPort);
+        this.playerClient = new LocalPlayerClient(this, serverHost, serverPort);
         this.handRankingService = new HandRankingServiceImpl();
         this.postFlopStrategy = new PostFlopStrategyImpl();
     }
 
     public void playATrainingGame() throws Exception {
         playerClient.connect();
-        playerClient.registerForPlay(Room.TRAINING);
+        final String room = getProperty("room", "TRAINING");
+        LOG.info("Trying to start play in [{}]", room);
+        playerClient.registerForPlay(Room.valueOf(room));
     }
 
     /**
@@ -78,7 +75,7 @@ public class PerforatorBot implements Player {
      */
     @Override
     public String getName() {
-        return "Perforator";
+        return getProperty("botName", "Perforator");
     }
 
     @Override
@@ -91,8 +88,13 @@ public class PerforatorBot implements Player {
         if (cps.getCurrentPlayState() == PRE_FLOP) {
             response = preFlopStrategy.getPreFlopAction(request.getPossibleActions());
         } else if (of(FLOP, TURN, RIVER).contains(cps.getCurrentPlayState())) {
-            HandRanking ranking = handRankingService.getRanking(cps.getMyCards(), cps.getCommunityCards(), 10000);
+            HandRanking ranking = handRankingService.getRanking(cps.getMyCards(), cps.getCommunityCards());
             response = postFlopStrategy.getPostFlopAction(request.getPossibleActions(), ranking, cps, gameStatistics);
+
+            // Quick fix on raise safe guard
+            if (response.getActionType() == RAISE) {
+                postFlopStrategy.incrementRaises();
+            }
         }
 
         LOG.info("Round [{}]: I'm going to {} {}. I currently have [{}] chips",
@@ -112,6 +114,8 @@ public class PerforatorBot implements Player {
         gameStatistics.incrementRound();
         preFlopStrategy = new PreFlopStrategyImpl(playerClient);
         handRankingService.resetDeck();
+        postFlopStrategy.resetRaises();
+        playerClient.setPlayers(event.getPlayers());
 
         LOG.debug("Play is started");
     }
@@ -119,7 +123,8 @@ public class PerforatorBot implements Player {
     @Override
     public void onTableChangedStateEvent(TableChangedStateEvent event) {
 
-        LOG.debug("Table changed state: {}", event.getState());
+        LOG.debug("Table changed state: [{}]", event.getState());
+        postFlopStrategy.resetRaises();
     }
 
     @Override
@@ -132,7 +137,7 @@ public class PerforatorBot implements Player {
     @Override
     public void onCommunityHasBeenDealtACard(final CommunityHasBeenDealtACardEvent event) {
 
-        LOG.debug("Community got a card: {}", event.getCard());
+        LOG.debug("Community got a card: [{}]", event.getCard());
     }
 
     @Override
@@ -149,6 +154,12 @@ public class PerforatorBot implements Player {
 
     @Override
     public void onPlayerFolded(final PlayerFoldedEvent event) {
+
+        // Check if it's this bot. In that case record that for future
+        //event.getPlayer().getName();
+        //CurrentPlayState currentPlayState = playerClient.getCurrentPlayState();
+        //gameStatistics.recordPlayerFolded(currentPlayState.getPlayers().);
+
 
         LOG.debug("{} folded after putting {} in the pot", event.getPlayer().getName(), event.getInvestmentInPot());
     }
@@ -175,7 +186,7 @@ public class PerforatorBot implements Player {
     public void onTableIsDone(TableIsDoneEvent event) {
 
         LOG.debug("Table is done, I'm leaving the table with ${}", playerClient.getCurrentPlayState().getMyCurrentChipAmount());
-        LOG.info("Ending poker session, the last game may be viewed at: http://{}/showgame/table/{}", serverHost, playerClient.getCurrentPlayState().getTableId());
+        LOG.info("Ending poker session, the last game may be viewed at: http://{}/showgame/table/{}", playerClient.getHost(), playerClient.getCurrentPlayState().getTableId());
     }
 
     @Override
@@ -186,6 +197,7 @@ public class PerforatorBot implements Player {
 
     @Override
     public void onPlayerChecked(final PlayerCheckedEvent event) {
+
 
         LOG.debug("{} checked", event.getPlayer().getName());
     }

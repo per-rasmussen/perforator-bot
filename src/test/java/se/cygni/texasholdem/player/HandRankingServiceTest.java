@@ -11,7 +11,6 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.assertEquals;
-import static junit.framework.TestCase.assertTrue;
 import static se.cygni.texasholdem.game.definitions.Rank.*;
 import static se.cygni.texasholdem.game.definitions.Suit.*;
 
@@ -74,11 +73,11 @@ public class HandRankingServiceTest {
         List<Card> holeCards = asList(SEVEN_OF_CLUBS, ACE_OF_HEARTS);
 
         // test
-        HandRanking ranking = target.getRanking(holeCards, communityCards, 1000);
+        HandRanking ranking = target.getRanking(holeCards, communityCards);
 
         // verify
         assertEquals(cardsInDeck, target.getCardsInRankingDeck());
-        assertTrue(ranking.getRankingValue() > 97);
+        assertEquals(99, ranking.getRankingValue());
 
     }
 
@@ -91,11 +90,11 @@ public class HandRankingServiceTest {
         List<Card> holeCards = asList(TEN_OF_HEARTS, ACE_OF_DIAMONDS);
 
         // test
-        HandRanking ranking = target.getRanking(holeCards, communityCards, 10000);
+        HandRanking ranking = target.getRanking(holeCards, communityCards);
 
         // verify
         assertEquals(cardsInDeck, target.getCardsInRankingDeck());
-        assertTrue(ranking.getRankingValue() > 97);
+        assertEquals(99, ranking.getRankingValue());
 
     }
 
@@ -108,11 +107,11 @@ public class HandRankingServiceTest {
         List<Card> holeCards = asList(SEVEN_OF_CLUBS, EIGHT_OF_CLUBS);
 
         // test
-        HandRanking ranking = target.getRanking(holeCards, communityCards, 1000);
+        HandRanking ranking = target.getRanking(holeCards, communityCards);
 
         // verify
         assertEquals(cardsInDeck, target.getCardsInRankingDeck());
-        assertTrue(ranking.getRankingValue() > 79);
+        assertEquals(83, ranking.getRankingValue());
 
     }
 
@@ -125,11 +124,12 @@ public class HandRankingServiceTest {
         List<Card> holeCards = asList(SEVEN_OF_CLUBS, EIGHT_OF_CLUBS);
 
         // test
-        HandRanking ranking = target.getRanking(holeCards, communityCards, 1000);
+        HandRanking ranking = target.getRanking(holeCards, communityCards);
 
         // verify
         assertEquals(cardsInDeck, target.getCardsInRankingDeck());
-        assertTrue(ranking.getRankingValue() > 72);
+        assertEquals(75, ranking.getRankingValue());
 
     }
+
 }

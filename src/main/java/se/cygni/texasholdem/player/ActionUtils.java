@@ -18,6 +18,7 @@ public abstract class ActionUtils {
     private final static Logger LOGGER = LoggerFactory.getLogger(ActionUtils.class);
 
     public static Action chooseInOrderFrom(Map<ActionType, Action> possibleActions, ActionType... actionTypes) {
+
         for (ActionType actionType : actionTypes) {
             if (possibleActions.containsKey(actionType)) {
                 return possibleActions.get(actionType);
@@ -27,7 +28,6 @@ public abstract class ActionUtils {
     }
 
     public static Action safelyChooseInOrderFrom(Map<ActionType, Action> possibleActions, CurrentPlayState ps, ActionType... actionTypes) {
-
 
         // really defensive.
         for (GamePlayer player : ps.getPlayers()) {

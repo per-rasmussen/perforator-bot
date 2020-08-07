@@ -7,14 +7,11 @@ import se.cygni.texasholdem.game.GamePlayer;
 public class GameStatistics {
 
     private final PlayerClient playerClient;
-    private final long totalChips;
-    private int rounds;
-    private String myName;
+    private int rounds = -1;
+    private final String myName;
 
     public GameStatistics(PlayerClient playerClient, String myName) {
         this.playerClient = playerClient;
-        CurrentPlayState cps = playerClient.getCurrentPlayState();
-        this.totalChips = cps.getMyCurrentChipAmount() * cps.getNumberOfPlayers();
         this.myName = myName;
     }
 
@@ -23,9 +20,19 @@ public class GameStatistics {
         return cps.getNumberOfPlayers() - cps.getNumberOfFoldedPlayers();
     }
 
-    public double getChipRatio() {
+    public long getChipRatio() {
         CurrentPlayState cps = playerClient.getCurrentPlayState();
-        return ((double) cps.getMyCurrentChipAmount()) / totalChips;
+        return 100 * cps.getMyCurrentChipAmount() / getTotalChips();
+    }
+
+    public long getTotalChips() {
+
+        long result = 0;
+        CurrentPlayState playState = playerClient.getCurrentPlayState();
+        for (GamePlayer gp : playState.getPlayers()) {
+            result += gp.getChipCount();
+        }
+        return result;
     }
 
     public double getChipRatioBestOpponent() {
@@ -34,7 +41,6 @@ public class GameStatistics {
         long bestChips = -1;
         for (GamePlayer gamePlayer : cps.getPlayers()) {
             if (!myName.equals(gamePlayer.getName()) && !cps.hasPlayerFolded(gamePlayer)) {
-
                 if (gamePlayer.getChipCount() > bestChips) {
                     bestChips = gamePlayer.getChipCount();
                 }

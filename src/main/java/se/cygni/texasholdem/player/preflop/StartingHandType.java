@@ -9,63 +9,50 @@ import static se.cygni.texasholdem.player.CardUtils.*;
 
 public enum StartingHandType {
 
-    ALWAYS_PLAY(new PocketCardEvaluator() {
-        @Override
-        public boolean isInGroup(Card c1, Card c2) {
+    ALWAYS_PLAY((c1, c2) ->
+            isPairOf(c1, c2, range(SEVEN, ACE)) ||
+            isCombinationOf(c1, c2, ACE, range(TEN, KING)) ||
+            isCombinationOf(c1, c2, KING, range(JACK, QUEEN)) ||
+            isSuitedCombinationOf(c1, c2, KING, of(TEN)) ||
+            isSuitedCombinationOf(c1, c2, QUEEN, range(TEN, JACK)) ||
+            isSuitedCombinationOf(c1, c2, JACK, range(NINE, TEN)) ||
+            isSuitedCombinationOf(c1, c2, of(NINE, TEN))),
 
-            return isPairOf(c1, c2, range(SEVEN, ACE)) ||
-                    isCombinationOf(c1, c2, ACE, range(TEN, KING)) ||
-                    isCombinationOf(c1, c2, KING, range(JACK, QUEEN)) ||
-                    isSuitedCombinationOf(c1, c2, KING, of(TEN)) ||
-                    isSuitedCombinationOf(c1, c2, QUEEN, range(TEN, JACK)) ||
-                    isSuitedCombinationOf(c1, c2, JACK, range(NINE, TEN)) ||
-                    isSuitedCombinationOf(c1, c2, of(NINE, TEN));
-        }
-    }),
-    MIDDLE_LATE_PLAY(new PocketCardEvaluator() {
-        @Override
-        public boolean isInGroup(Card c1, Card c2) {
+    MIDDLE_LATE_PLAY((c1, c2) ->
+            isPairOf(c1, c2, of(FIVE, SIX)) ||
+            isSuitedCombinationOf(c1, c2, ACE, range(SIX, NINE)) ||
+            isSuitedCombinationOf(c1, c2, QUEEN, range(EIGHT, NINE)) ||
+            isCombinationOf(c1, c2, QUEEN, range(TEN, JACK)) ||
+            isSuitedCombinationOf(c1, c2, KING, of(NINE)) ||
+            isSuitedCombinationOf(c1, c2, JACK, of(EIGHT)) ||
+            isSuitedCombinationOf(c1, c2, NINE, of(EIGHT)) ||
+            isSuitedCombinationOf(c1, c2, TEN, of(EIGHT)) ||
+            isCombinationOf(c1, c2, KING, of(TEN)) ||
+            isCombinationOf(c1, c2, JACK, of(TEN))),
 
-            return isPairOf(c1, c2, of(FIVE, SIX)) ||
-                    isSuitedCombinationOf(c1, c2, ACE, range(SIX, NINE)) ||
-                    isSuitedCombinationOf(c1, c2, QUEEN, range(EIGHT, NINE)) ||
-                    isCombinationOf(c1, c2, QUEEN, range(TEN, JACK)) ||
-                    isSuitedCombinationOf(c1, c2, KING, of(NINE)) ||
-                    isSuitedCombinationOf(c1, c2, JACK, of(EIGHT)) ||
-                    isSuitedCombinationOf(c1, c2, NINE, of(EIGHT)) ||
-                    isSuitedCombinationOf(c1, c2, TEN, of(EIGHT)) ||
-                    isCombinationOf(c1, c2, KING, of(TEN)) ||
-                    isCombinationOf(c1, c2, JACK, of(TEN));
-        }
-    }),
-    ONLY_LATE_PLAY(new PocketCardEvaluator() {
-        @Override
-        public boolean isInGroup(Card c1, Card c2) {
+    ONLY_LATE_PLAY((c1, c2) ->
+            isPairOf(c1, c2, range(DEUCE, THREE)) ||
+            isCombinationOf(c1, c2, ACE, range(SEVEN, NINE)) ||
+            isSuitedCombinationOf(c1, c2, ACE, range(DEUCE, FIVE)) ||
+            isSuitedCombinationOf(c1, c2, KING, range(DEUCE, EIGHT)) ||
+            isCombinationOf(c1, c2, KING, of(NINE)) ||
+            isCombinationOf(c1, c2, QUEEN, of(NINE)) ||
+            isSuitedCombinationOf(c1, c2, JACK, of(SEVEN)) ||
+            isCombinationOf(c1, c2, JACK, range(EIGHT, NINE)) ||
+            isCombinationOf(c1, c2, TEN, range(EIGHT, NINE)) ||
+            isCombinationOf(c1, c2, NINE, range(SEVEN, EIGHT)) ||
+            isCombinationOf(c1, c2, EIGHT, of(SEVEN)) ||
+            isSuitedCombinationOf(c1, c2, TEN, of(SEVEN)) ||
+            isSuitedCombinationOf(c1, c2, NINE, range(SIX, SEVEN)) ||
+            isSuitedCombinationOf(c1, c2, EIGHT, range(SIX, SEVEN)) ||
+            isSuitedCombinationOf(c1, c2, SEVEN, range(FIVE, SIX)) ||
+            isSuitedCombinationOf(c1, c2, SIX, of(FIVE)) ||
+            isSuitedCombinationOf(c1, c2, FIVE, of(FOUR))),
 
-            return isPairOf(c1, c2, range(DEUCE, THREE)) ||
-                    isCombinationOf(c1, c2, ACE, range(SEVEN, NINE)) ||
-                    isSuitedCombinationOf(c1, c2, ACE, range(DEUCE, FIVE)) ||
-                    isSuitedCombinationOf(c1, c2, KING, range(DEUCE, EIGHT)) ||
-                    isCombinationOf(c1, c2, KING, of(NINE)) ||
-                    isCombinationOf(c1, c2, QUEEN, of(NINE)) ||
-                    isSuitedCombinationOf(c1, c2, JACK, of(SEVEN)) ||
-                    isCombinationOf(c1, c2, JACK, range(EIGHT, NINE)) ||
-                    isCombinationOf(c1, c2, TEN, range(EIGHT, NINE)) ||
-                    isCombinationOf(c1, c2, NINE, range(SEVEN, EIGHT)) ||
-                    isCombinationOf(c1, c2, EIGHT, of(SEVEN)) ||
-                    isSuitedCombinationOf(c1, c2, TEN, of(SEVEN)) ||
-                    isSuitedCombinationOf(c1, c2, NINE, range(SIX, SEVEN)) ||
-                    isSuitedCombinationOf(c1, c2, EIGHT, range(SIX, SEVEN)) ||
-                    isSuitedCombinationOf(c1, c2, SEVEN, range(FIVE, SIX)) ||
-                    isSuitedCombinationOf(c1, c2, SIX, of(FIVE)) ||
-                    isSuitedCombinationOf(c1, c2, FIVE, of(FOUR));
-
-        }
-    }),
     NO_PLAY(new PocketCardEvaluator() {
         @Override
         public boolean isInGroup(Card c1, Card c2) {
-            // Check that combination is _not in any other group
+            // Check that combination is not in any other group
             for (StartingHandType g : complementOf(of(NO_PLAY))) {
                 if (g.isInGroup(c1, c2)) {
                     return false;
@@ -82,7 +69,7 @@ public enum StartingHandType {
 
     private final PocketCardEvaluator evaluator;
 
-    private StartingHandType(final PocketCardEvaluator evaluator) {
+    StartingHandType(final PocketCardEvaluator evaluator) {
         this.evaluator = evaluator;
     }
 

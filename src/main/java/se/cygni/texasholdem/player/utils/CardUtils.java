@@ -1,6 +1,5 @@
 package se.cygni.texasholdem.player.utils;
 
-import org.apache.commons.collections.CollectionUtils;
 import se.cygni.texasholdem.game.Card;
 import se.cygni.texasholdem.game.definitions.CardSortBy;
 import se.cygni.texasholdem.game.definitions.Rank;
@@ -21,17 +20,17 @@ public final class CardUtils {
     /**
      * Creates a map where cards are organized according to their Rank.
      *
-     * @param cards
+     * @param cards list of cards
      * @return a map where cards are organized according to their Rank
      */
     protected static Map<Rank, List<Card>> getRankDistribution(final List<Card> cards) {
 
-        final Map<Rank, List<Card>> distribution = new TreeMap<Rank, List<Card>>();
+        final Map<Rank, List<Card>> distribution = new TreeMap<>();
         for (final Card c : cards) {
             if (distribution.containsKey(c.getRank())) {
                 distribution.get(c.getRank()).add(c);
             } else {
-                final ArrayList<Card> l = new ArrayList<Card>(4);
+                final ArrayList<Card> l = new ArrayList<>(4);
                 l.add(c);
                 distribution.put(c.getRank(), l);
             }
@@ -42,17 +41,17 @@ public final class CardUtils {
     /**
      * Creates a map where cards are organized according to their Suit.
      *
-     * @param cards
+     * @param cards list of cards
      * @return a map where cards are organized according to their Suit
      */
     protected static Map<Suit, List<Card>> getSuitDistribution(final List<Card> cards) {
 
-        final Map<Suit, List<Card>> distribution = new TreeMap<Suit, List<Card>>();
+        final Map<Suit, List<Card>> distribution = new TreeMap<>();
         for (final Card c : cards) {
             if (distribution.containsKey(c.getSuit())) {
                 distribution.get(c.getSuit()).add(c);
             } else {
-                final ArrayList<Card> l = new ArrayList<Card>(7);
+                final ArrayList<Card> l = new ArrayList<>(7);
                 l.add(c);
                 distribution.put(c.getSuit(), l);
             }
@@ -64,13 +63,13 @@ public final class CardUtils {
      * Null safe merge of two lists. If both lists are empty or null an empty
      * list is returned.
      *
-     * @param first
-     * @param second
+     * @param first the first list
+     * @param second the second list
      * @return The merge of the lists first and second
      */
     protected static List<Card> merge(final List<Card> first, final List<Card> second) {
 
-        final List<Card> result = new ArrayList<Card>(7);
+        final List<Card> result = new ArrayList<>(7);
 
         if (first != null) {
             result.addAll(first);
@@ -88,15 +87,15 @@ public final class CardUtils {
      * in remove. Null safe. If target is empty or null an empty list will be
      * returned.
      *
-     * @param target
-     * @param remove
+     * @param target target list
+     * @param remove cards to remove from target
      * @return A copy of the target list with all elements from remove removed.
      */
     protected static List<Card> remove(final List<Card> target, final List<Card> remove) {
 
-        final List<Card> result = new ArrayList<Card>(7);
+        final List<Card> result = new ArrayList<>(7);
 
-        if (CollectionUtils.isEmpty(remove)) {
+        if (remove == null || remove.isEmpty()) {
             result.addAll(target);
             return result;
         }
@@ -128,7 +127,7 @@ public final class CardUtils {
             final List<Card> exclude) {
 
         final List<Card> removed = remove(cards, exclude);
-        Collections.sort(removed, CardSortBy.RANK.getComparator());
+        removed.sort(CardSortBy.RANK.getComparator());
         Collections.reverse(removed);
 
         if (noof > removed.size()) {
@@ -141,16 +140,16 @@ public final class CardUtils {
     /**
      * Sorts the list of cards in a new List.
      *
-     * @param sort
-     * @param cards
+     * @param sort order to sort
+     * @param cards cards to sort
      * @return A new List sorted by Rank och Suit.
      */
     protected static List<Card> sortBy(
             final CardSortBy sort,
             final List<Card> cards) {
 
-        final List<Card> result = new ArrayList<Card>(cards);
-        Collections.sort(result, sort.getComparator());
+        final List<Card> result = new ArrayList<>(cards);
+        result.sort(sort.getComparator());
         return result;
     }
 
@@ -163,7 +162,7 @@ public final class CardUtils {
      * Example: getLongestConsecutiveSubset({5h, 3s, Ad, As, 2c, Kh, 4c})
      * Returns: {Ad, 2c, 3s, 4c, 5h}
      *
-     * @param cards
+     * @param cards cards
      * @return The longest consecutive sublist of cards found or the empty list
      *         if none found.
      */
@@ -178,7 +177,7 @@ public final class CardUtils {
             sortedCards.add(0, lastCard);
         }
 
-        List<Card> largestConsecutive = new ArrayList<Card>();
+        List<Card> largestConsecutive = new ArrayList<>();
 
         int currStartPos = 0;
         Card previousCard = null;
@@ -227,13 +226,13 @@ public final class CardUtils {
      * Example: removeDuplicatesByRankAndSortByRank({5h, Jd, 3s, 5d, Js}
      * Returns: {3s, 5d, Jd}
      *
-     * @param cards
+     * @param cards cards
      * @return A sorted list of Cards with no duplicate Ranks.
      */
     protected static List<Card> removeDuplicatesByRankAndSortByRank(final List<Card> cards) {
 
         final List<Card> sortedCards = sortBy(CardSortBy.RANK, cards);
-        final List<Card> result = new ArrayList<Card>(7);
+        final List<Card> result = new ArrayList<>(7);
         Card previousCard = null;
 
         for (final Card c : sortedCards) {
@@ -262,7 +261,7 @@ public final class CardUtils {
             final List<Card> cards,
             final Rank excludedRank) {
 
-        final List<Card> activeCardList = new ArrayList<Card>(7);
+        final List<Card> activeCardList = new ArrayList<>(7);
         for (final Card c : cards) {
             if (c.getRank() != excludedRank) {
                 activeCardList.add(c);
@@ -286,7 +285,7 @@ public final class CardUtils {
             final int noof,
             final List<Card> cards) {
 
-        List<Card> result = new ArrayList<Card>(7);
+        List<Card> result = new ArrayList<>(7);
 
         Rank currBestRank = null;
         final Map<Rank, List<Card>> distribution = getRankDistribution(cards);
@@ -299,7 +298,7 @@ public final class CardUtils {
                 }
             }
         }
-        Collections.sort(result, CardSortBy.SUIT.getComparator());
+        result.sort(CardSortBy.SUIT.getComparator());
         if (result.size() > noof) {
             result = result.subList(0, noof);
         }
